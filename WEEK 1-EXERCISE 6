@@ -1,0 +1,95 @@
+public class LibraryManagementSystem {
+    private Book[] books;
+    private int count;
+
+    public LibraryManagementSystem(int capacity) {
+        books = new Book[capacity];
+        count = 0;
+    }
+
+    public void addBook(Book book) {
+        if (count < books.length) {
+            books[count++] = book;
+        } else {
+            System.out.println("Library is full. Cannot add more books.");
+        }
+    }
+
+    public Book linearSearchByTitle(String title) {
+        for (int i = 0; i < count; i++) {
+            if (books[i].getTitle().equalsIgnoreCase(title)) {
+                return books[i];
+            }
+        }
+        return null;
+    }
+
+    public Book binarySearchByTitle(String title) {
+        return binarySearchByTitle(books, 0, count - 1, title);
+    }
+
+    private Book binarySearchByTitle(Book[] books, int low, int high, String title) {
+        if (high >= low) {
+            int mid = low + (high - low) / 2;
+            int comparison = books[mid].getTitle().compareToIgnoreCase(title);
+            if (comparison == 0) {
+                return books[mid];
+            }
+            if (comparison > 0) {
+                return binarySearchByTitle(books, low, mid - 1, title);
+            }
+            return binarySearchByTitle(books, mid + 1, high, title);
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        LibraryManagementSystem library = new LibraryManagementSystem(10);
+
+        Book b1 = new Book(1, "The Great Gatsby", "F. Scott Fitzgerald");
+        Book b2 = new Book(2, "1984", "George Orwell");
+        Book b3 = new Book(3, "To Kill a Mockingbird", "Harper Lee");
+
+        library.addBook(b1);
+        library.addBook(b2);
+        library.addBook(b3);
+
+        System.out.println("Searching for '1984' using linear search:");
+        System.out.println(library.linearSearchByTitle("1984"));
+
+        System.out.println("\nSearching for '1984' using binary search:");
+        System.out.println(library.binarySearchByTitle("1984"));
+    }
+}
+
+class Book {
+    private int bookId;
+    private String title;
+    private String author;
+
+    public Book(int bookId, String title, String author) {
+        this.bookId = bookId;
+        this.title = title;
+        this.author = author;
+    }
+
+    public int getBookId() { return bookId; }
+    public String getTitle() { return title; }
+    public String getAuthor() { return author; }
+
+    @Override
+    public String toString() {
+        return "Book{" +
+                "bookId=" + bookId +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                '}';
+    }
+}
+OUTPUT
+
+Searching for '1984' using linear search:
+Book{bookId=2, title='1984', author='George Orwell'}
+
+Searching for '1984' using binary search:
+Book{bookId=2, title='1984', author='George Orwell'}
