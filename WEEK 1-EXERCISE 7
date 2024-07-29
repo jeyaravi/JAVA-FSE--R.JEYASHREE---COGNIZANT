@@ -1,0 +1,36 @@
+public class FinancialForecasting {
+
+    /**
+     * Calculates the future value using an iterative approach.
+     *
+     * @param currentValue  The current value of the investment.
+     * @param growthRate    The growth rate per period (e.g., 0.05 for 5%).
+     * @param periods       The number of periods to forecast into the future.
+     * @return              The future value after the given number of periods.
+     */
+    public static double calculateFutureValueIterative(double currentValue, double growthRate, int periods) {
+        double futureValue = currentValue;
+        for (int i = 0; i < periods; i++) {
+            futureValue *= (1 + growthRate);
+        }
+        return futureValue;
+    }
+
+    public static void main(String[] args) {
+        double initialInvestment = 1000.0; // Starting value
+        double annualGrowthRate = 0.05;    // 5% growth rate
+        int years = 10;                    // Forecast for 10 years
+
+        // Calculate the future value using iterative approach
+        double futureValueIterative = calculateFutureValueIterative(initialInvestment, annualGrowthRate, years);
+
+        // Display the result
+        System.out.printf("Future Value after %d years (Iterative): %.2f%n", years, futureValueIterative);
+    }
+}
+
+
+OUTPUT
+
+Future Value after 10 years: 1647.01
+Future Value after 10 years (Iterative): 1647.01
