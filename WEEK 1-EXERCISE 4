@@ -1,0 +1,115 @@
+public class EmployeeManagementSystem {
+    private Employee[] employees;
+    private int count;
+
+    public EmployeeManagementSystem(int capacity) {
+        employees = new Employee[capacity];
+        count = 0;
+    }
+
+    public void addEmployee(Employee employee) {
+        if (count < employees.length) {
+            employees[count++] = employee;
+        } else {
+            System.out.println("Employee array is full. Cannot add more employees.");
+        }
+    }
+
+    public Employee searchEmployee(int employeeId) {
+        for (int i = 0; i < count; i++) {
+            if (employees[i].getEmployeeId() == employeeId) {
+                return employees[i];
+            }
+        }
+        return null;
+    }
+
+    public void traverseEmployees() {
+        for (int i = 0; i < count; i++) {
+            System.out.println(employees[i]);
+        }
+    }
+
+    public boolean deleteEmployee(int employeeId) {
+        for (int i = 0; i < count; i++) {
+            if (employees[i].getEmployeeId() == employeeId) {
+                employees[i] = employees[--count]; // Replace with the last employee and reduce count
+                employees[count] = null; // Remove reference for garbage collection
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        EmployeeManagementSystem ems = new EmployeeManagementSystem(10);
+
+        Employee e1 = new Employee(101, "Alice", "Manager", 90000);
+        Employee e2 = new Employee(102, "Bob", "Developer", 75000);
+        Employee e3 = new Employee(103, "Charlie", "Designer", 70000);
+
+        ems.addEmployee(e1);
+        ems.addEmployee(e2);
+        ems.addEmployee(e3);
+
+        System.out.println("All Employees:");
+        ems.traverseEmployees();
+
+        System.out.println("\nSearching for employee with ID 102:");
+        System.out.println(ems.searchEmployee(102));
+
+        System.out.println("\nDeleting employee with ID 102:");
+        ems.deleteEmployee(102);
+
+        System.out.println("\nAll Employees after deletion:");
+        ems.traverseEmployees();
+    }
+}
+
+class Employee {
+    private int employeeId;
+    private String name;
+    private String position;
+    private double salary;
+
+    public Employee(int employeeId, String name, String position, double salary) {
+        this.employeeId = employeeId;
+        this.name = name;
+        this.position = position;
+        this.salary = salary;
+    }
+
+    public int getEmployeeId() { return employeeId; }
+    public String getName() { return name; }
+    public String getPosition() { return position; }
+    public double getSalary() { return salary; }
+
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "employeeId=" + employeeId +
+                ", name='" + name + '\'' +
+                ", position='" + position + '\'' +
+                ", salary=" + salary +
+                '}';
+    }
+}
+
+
+OUTPUT
+
+All Employees:
+Employee{employeeId=101, name='Alice', position='Manager', salary=90000.0}
+Employee{employeeId=102, name='Bob', position='Developer', salary=75000.0}
+Employee{employeeId=103, name='Charlie', position='Designer', salary=70000.0}
+
+Searching for employee with ID 102:
+Employee{employeeId=102, name='Bob', position='Developer', salary=75000.0}
+
+Deleting employee with ID 102:
+true
+
+All Employees after deletion:
+Employee{employeeId=101, name='Alice', position='Manager', salary=90000.0}
+Employee{employeeId=103, name='Charlie', position='Designer', salary=70000.0}
+
