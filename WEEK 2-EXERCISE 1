@@ -1,0 +1,41 @@
+Scenario 1:
+
+BEGIN
+    FOR customer IN (SELECT customer_id, age FROM customers) LOOP
+        IF customer.age > 60 THEN
+            UPDATE loans
+            SET interest_rate = interest_rate - 1
+            WHERE customer_id = customer.customer_id;
+        END IF;
+    END LOOP;
+    COMMIT;
+END;
+
+Scenario 2:
+
+BEGIN
+    FOR customer IN (SELECT customer_id, balance FROM accounts) LOOP
+        IF customer.balance > 10000 THEN
+            UPDATE customers
+            SET IsVIP = TRUE
+            WHERE customer_id = customer.customer_id;
+        END IF;
+    END LOOP;
+    COMMIT;
+END;
+
+
+Scenario 3:
+
+BEGIN
+    FOR loan IN (SELECT customer_id, due_date FROM loans WHERE due_date BETWEEN SYSDATE AND SYSDATE + 30) LOOP
+        DECLARE
+            customer_name VARCHAR2(100);
+        BEGIN
+            SELECT name INTO customer_name FROM customers WHERE customer_id = loan.customer_id;
+            DBMS_OUTPUT.PUT_LINE('Reminder: Dear ' || customer_name || ', your loan is due on ' || TO_CHAR(loan.due_date, 'DD-MON-YYYY'));
+        END;
+    END LOOP;
+END;
+
+
