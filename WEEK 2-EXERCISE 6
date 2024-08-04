@@ -1,0 +1,83 @@
+Scenario 1:
+
+DECLARE
+    CURSOR transactions_cursor IS
+        SELECT customer_id, transaction_id, transaction_date, amount, transaction_type
+        FROM transactions
+        WHERE TRUNC(transaction_date, 'MM') = TRUNC(SYSDATE, 'MM');
+    
+    v_customer_id customers.customer_id%TYPE;
+    v_transaction_id transactions.transaction_id%TYPE;
+    v_transaction_date transactions.transaction_date%TYPE;
+    v_amount transactions.amount%TYPE;
+    v_transaction_type transactions.transaction_type%TYPE;
+    v_customer_name customers.name%TYPE;
+BEGIN
+    OPEN transactions_cursor;
+    LOOP
+        FETCH transactions_cursor INTO v_customer_id, v_transaction_id, v_transaction_date, v_amount, v_transaction_type;
+        EXIT WHEN transactions_cursor%NOTFOUND;
+
+        SELECT name INTO v_customer_name FROM customers WHERE customer_id = v_customer_id;
+
+        DBMS_OUTPUT.PUT_LINE('Monthly Statement for ' || v_customer_name);
+        DBMS_OUTPUT.PUT_LINE('Transaction ID: ' || v_transaction_id);
+        DBMS_OUTPUT.PUT_LINE('Date: ' || TO_CHAR(v_transaction_date, 'DD-MON-YYYY'));
+        DBMS_OUTPUT.PUT_LINE('Amount: ' || v_amount);
+        DBMS_OUTPUT.PUT_LINE('Type: ' || v_transaction_type);
+        DBMS_OUTPUT.PUT_LINE('--------------------------');
+    END LOOP;
+    CLOSE transactions_cursor;
+END;
+
+Scenario 2:
+
+DECLARE
+    CURSOR accounts_cursor IS
+        SELECT account_id, balance
+        FROM accounts;
+
+    v_account_id accounts.account_id%TYPE;
+    v_balance accounts.balance%TYPE;
+    v_annual_fee CONSTANT NUMBER := 50;  -- Annual maintenance fee
+BEGIN
+    OPEN accounts_cursor;
+    LOOP
+        FETCH accounts_cursor INTO v_account_id, v_balance;
+        EXIT WHEN accounts_cursor%NOTFOUND;
+
+        UPDATE accounts
+        SET balance = balance - v_annual_fee
+        WHERE account_id = v_account_id;
+    END LOOP;
+    CLOSE accounts_cursor;
+
+    COMMIT;
+END;
+
+Scenario 3:
+DECLARE
+    CURSOR loans_cursor IS
+        SELECT loan_id, interest_rate
+        FROM loans;
+
+    v_loan_id loans.loan_id%TYPE;
+    v_interest_rate loans.interest_rate%TYPE;
+    v_new_interest_rate NUMBER;
+BEGIN
+    OPEN loans_cursor;
+    LOOP
+        FETCH loans_cursor INTO v_loan_id, v_interest_rate;
+        EXIT WHEN loans_cursor%NOTFOUND;
+
+        -- Assuming the new policy increases interest rates by 0.5%
+        v_new_interest_rate := v_interest_rate + 0.5;
+
+        UPDATE loans
+        SET interest_rate = v_new_interest_rate
+        WHERE loan_id = v_loan_id;
+    END LOOP;
+    CLOSE loans_cursor;
+
+    COMMIT;
+END;
