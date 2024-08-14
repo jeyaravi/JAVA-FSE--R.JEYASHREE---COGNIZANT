@@ -1,0 +1,68 @@
+Employee Controller
+package com.example.employeemanagementsystem.controller;
+
+import com.example.employeemanagementsystem.model.Employee;
+import com.example.employeemanagementsystem.repository.EmployeeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/employees")
+public class EmployeeController {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    // Create a new Employee
+    @PostMapping
+    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
+        Employee savedEmployee = employeeRepository.save(employee);
+        return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
+    }
+
+    // Get all Employees
+    @GetMapping
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
+    }
+
+    // Get Employee by ID
+    @GetMapping("/{id}")
+    public
+
+Department Controller
+package com.example.employeemanagementsystem.controller;
+
+import com.example.employeemanagementsystem.model.Department;
+import com.example.employeemanagementsystem.repository.DepartmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/departments")
+public class DepartmentController {
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
+    // Create a new Department
+    @PostMapping
+    public ResponseEntity<Department> createDepartment(@RequestBody Department department) {
+        Department savedDepartment = departmentRepository.save(department);
+        return new ResponseEntity<>(savedDepartment, HttpStatus.CREATED);
+    }
+
+    // Get all Departments
+    @GetMapping
+    public List<Department> getAllDepartments() {
+        return departmentRepository.findAll();
+ 
+Now the applications tends to be run...
