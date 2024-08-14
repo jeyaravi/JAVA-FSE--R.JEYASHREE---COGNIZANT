@@ -1,0 +1,70 @@
+Exercise 8 cosistes of business respositoty functions
+Forminfg the business apllication using spring data
+maven ,spring boot
+
+Interface based projection for business apllication respository
+package com.example.employeemanagementsystem.projection;
+
+public interface EmployeeNameAndEmailProjection {
+    String getName();
+    String getEmail();
+}
+Using the projection in public project respository
+
+package com.example.employeemanagementsystem.repository;
+
+import com.example.employeemanagementsystem.model.Employee;
+import com.example.employeemanagementsystem.projection.EmployeeNameAndEmailProjection;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+
+    // Fetch only name and email using projection
+    List<EmployeeNameAndEmailProjection> findAllBy();
+}
+
+Class based projection for employee details should be get printed in the business application control susten software
+package com.example.employeemanagementsystem.dto;
+
+public class EmployeeDTO {
+
+    private String name;
+    private String email;
+
+    // Constructor to initialize fields
+    public EmployeeDTO(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    // Getters and Setters
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+}
+Creating compex projection using @ value index
+
+package com.example.employeemanagementsystem.projection;
+
+import org.springframework.beans.factory.annotation.Value;
+
+public interface EmployeeFullInfoProjection {
+
+    @Value("#{target.name + ' - ' + target.email}")
+    String getFullInfo();
+}
+Finally the program was performed using java application software using business respository
