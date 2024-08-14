@@ -1,0 +1,40 @@
+Custom Query methods using method Query keywords
+package com.example.employeemanagementsystem.repository;
+
+import com.example.employeemanagementsystem.model.Employee;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+
+    // Find employees by department name
+    List<Employee> findByDepartmentName(String departmentName);
+
+    // Find employees whose names contain a specific keyword
+    List<Employee> findByNameContaining(String keyword);
+
+    // Find employees by email and department id
+    Employee findByEmailAndDepartmentId(String email, Long departmentId);
+}
+Example of @Query at Emplyee REspository
+
+package com.example.employeemanagementsystem.repository;
+
+import com.example.employeemanagementsystem.model.Employee;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+
+    // Custom query to find employees by department name using @Query annotation
+    @Query("SELECT e FROM Employee e WHERE e.department.name = :departmentName")
+    List<Employee> findEmployeesByDepartmentName(@Param("departmentName") String departmentName);
+
+    // Custom query to find employees by partial email match
+    @Query("SELECT e FROM Employee e WHERE e.email LIKE %:email%")
+    List<Employee> findEmployeesByPartialEmail(@Param("email") String email);
+}
