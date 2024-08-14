@@ -1,0 +1,88 @@
+Modifying Employee REspository for Employment REgistration
+
+Add business scenario and doing sorting techniques such as 
+
+bubble sort
+quick sort
+Kadne's Algorithm
+First form the foldre name ita s Employee Registartion technique
+package com.example.employeemanagementsystem.repository;
+
+import com.example.employeemanagementsystem.model.Employee;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+
+    // Find all employees with pagination
+    Page<Employee> findAll(Pageable pageable);
+
+    // Find employees by department name with pagination
+    Page<Employee> findByDepartmentName(String departmentName, Pageable pageable);
+}
+Adding sorting technique to Employeement Respository
+
+package com.example.employeemanagementsystem.repository;
+
+import com.example.employeemanagementsystem.model.Employee;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+
+    // Find all employees with pagination and sorting
+    Page<Employee> findAll(Pageable pageable);
+
+    // Find employees by department name with pagination and sorting
+    Page<Employee> findByDepartmentName(String departmentName, Pageable pageable);
+
+    // Find all employees sorted by name
+    List<Employee> findAll(Sort sort);
+}
+Cpmbining pagianation and sorting to the Employem,ent Respository
+package com.example.employeemanagementsystem.controller;
+
+import com.example.employeemanagementsystem.model.Employee;
+import com.example.employeemanagementsystem.repository.EmployeeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/employees")
+public class EmployeeController {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    // Get all employees with pagination and sorting
+    @GetMapping
+    public Page<Employee> getAllEmployees(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        return employeeRepository.findAll(pageable);
+    }
+
+    // Get employees by department name with pagination and sorting
+    @GetMapping("/by-department")
+    public Page<Employee> getEmployeesByDepartmentName(
+            @RequestParam String departmentName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        return employeeRepository.findByDepartmentName(departmentName, pageable);
+    }
+}
