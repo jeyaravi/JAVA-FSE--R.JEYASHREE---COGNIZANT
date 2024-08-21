@@ -1,0 +1,101 @@
+package com.example.bookstoreapi.controller;
+
+import com.example.bookstoreapi.dto.BookDTO;
+import com.example.bookstoreapi.exception.EntityNotFoundException;
+import com.example.bookstoreapi.mapper.BookMapper;
+import com.example.bookstoreapi.model.Book;
+import com.example.bookstoreapi.repository.BookRepository;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    @Autowired
+    private BookRepository bookRepository;
+
+    @Autowired
+    private BookMapper bookMapper;
+
+    // Create a new book
+    @PostMapping
+    public ResponseEntity<BookDTO> createBook(@Valid @RequestBody BookDTO bookDTO) {
+        Book book = bookMapper.toBook(bookDTO);
+        bookRepository.save(book);
+        return new ResponseEntity<>(bookMapper.toBookDTO(book), HttpStatus.CREATED
+package com.example.bookstoreapi.controller;
+
+import com.example.bookstoreapi.dto.BookDTO;
+import com.example.bookstoreapi.exception.EntityNotFoundException;
+import com.example.bookstoreapi.mapper.BookMapper;
+import com.example.bookstoreapi.model.Book;
+import com.example.bookstoreapi.repository.BookRepository;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    @Autowired
+    private BookRepository bookRepository;
+
+    @Autowired
+    private BookMapper bookMapper;
+
+    // Create a new book
+    @PostMapping
+    public ResponseEntity<BookDTO> createBook(@Valid @RequestBody BookDTO bookDTO) {
+        Book book = bookMapper.toBook(bookDTO);
+        bookRepository.save(book);
+        return new ResponseEntity<>(bookMapper.toBookDTO(book), HttpStatus.CREATED);
+    }
+
+    // Get a book by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<BookDTO> getBookById(@PathVariable Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID " + id));
+        return new ResponseEntity<>(bookMapper.toBookDTO(book), HttpStatus.OK);
+    }
+
+    // Update an existing book
+    @PutMapping("/{id}")
+    public ResponseEntity<BookDTO> updateBook(@PathVariable Long id, @Valid @RequestBody BookDTO bookDTO) {
+        Book existingBook = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID " + id));
+
+        existingBook.setTitle(bookDTO.getTitle());
+        existingBook.setAuthor(bookDTO.getAuthor());
+        existingBook.setPrice(bookDTO.getPrice());
+        existingBook.setIsbn(bookDTO.getIsbn());
+
+        bookRepository.save(existingBook);
+
+        return new ResponseEntity<>(bookMapper.toBookDTO(existingBook), HttpStatus.OK);
+    }
+
+    // Delete a book by ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID " + id));
+        bookRepository.delete(book);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+}
