@@ -1,0 +1,60 @@
+package com.example.bookstoreapi.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Customer {
+    private Long id;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String password;
+}
+package com.example.bookstoreapi.controller;
+
+import com.example.bookstoreapi.model.Customer;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("/customers")
+public class CustomerController {
+
+    private List<Customer> customerList = new ArrayList<>();
+
+    // POST endpoint to create a new customer using JSON request body
+    @PostMapping
+    public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
+        customerList.add(customer);
+        return new ResponseEntity<>(customer, HttpStatus.CREATED);
+    }
+
+    // Additional endpoints can be added here
+}
+// POST endpoint to process form data for customer registration
+@PostMapping("/register")
+public ResponseEntity<Customer> registerCustomer(
+        @RequestParam("firstName") String firstName,
+        @RequestParam("lastName") String lastName,
+        @RequestParam("email") String email,
+        @RequestParam("password") String password) {
+
+    Customer customer = new Customer();
+    customer.setId((long) (customerList.size() + 1)); // Simple ID generation
+    customer.setFirstName(firstName);
+    customer.setLastName(lastName);
+    customer.setEmail(email);
+    customer.setPassword(password);
+
+    customerList.add(customer);
+    return new ResponseEntity<>(customer, HttpStatus.CREATED);
+}
+Handling JSON in online book store
