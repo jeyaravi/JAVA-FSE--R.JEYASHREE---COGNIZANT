@@ -1,0 +1,24 @@
+package com.example.bookstoreapi;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class BookstoreApiApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(BookstoreApiApplication.class, args);
+    }
+}
+public sealed class Book permits EBook, PrintedBook {
+    private String title;
+    private String author;
+}
+
+public final class EBook extends Book {
+    private String format;
+}
+
+public final class PrintedBook extends Book {
+    private String coverType;
+}
+Online Book Store Application
