@@ -1,0 +1,108 @@
+Customising response status in online book store
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.HttpStatus;
+
+// POST a new book
+@PostMapping
+@ResponseStatus(HttpStatus.CREATED)
+public Book createBook(@RequestBody Book book) {
+    bookList.add(book);
+    return book;
+}
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@DeleteMapping("/{id}")
+@ResponseStatus(HttpStatus.NO_CONTENT)
+public void deleteBook(@PathVariable Long id) {
+    bookList.removeIf(book -> book.getId().equals(id));
+}
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+@GetMapping("/{id}")
+public ResponseEntity<Book> getBookById(@PathVariable Long id) {
+    return bookList.stream()
+            .filter(book -> book.getId().equals(id))
+            .findFirst()
+            .map(book -> {
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Custom-Header", "BookStoreAPI");
+                return new ResponseEntity<>(book, headers, HttpStatus.OK);
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+}
+package com.example.bookstoreapi.controller;
+
+import com.example.bookstoreapi.model.Book;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    private List<Book> bookList = new ArrayList<>();
+
+    // GET all books
+    @GetMapping
+    public ResponseEntity<List<Book>> getAllBooks() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Custom-Header", "BookStoreAPI");
+        return new ResponseEntity<>(bookList, headers, HttpStatus.OK);
+    }
+
+    // GET a specific book by ID with custom header
+    @GetMapping("/{id}")
+    public ResponseEntity<Book> getBookById(@PathVariable Long id) {
+        return bookList.stream()
+                .filter(book -> book.getId().equals(id))
+                .findFirst()
+                .map(book -> {
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add("Custom-Header", "BookStoreAPI");
+                    return new ResponseEntity<>(book, headers, HttpStatus.OK);
+                })
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    // POST a new book with custom status
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Book createBook(@RequestBody Book book) {
+        bookList.add(book);
+        return book;
+    }
+
+    // PUT to update an existing book
+    @PutMapping("/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book updatedBook) {
+        for (int i = 0; i < bookList.size(); i++) {
+            Book book = bookList.get(i);
+            if (book.getId().equals(id)) {
+                book.setTitle(updatedBook.getTitle());
+                book.setAuthor(updatedBook.getAuthor());
+                book.setPrice(updatedBook.getPrice());
+                book.setIsbn(updatedBook.getIsbn());
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Custom-Header", "BookStoreAPI");
+                return new ResponseEntity<>(book, headers, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    // DELETE a book by ID with custom status
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBook(@PathVariable Long id) {
+        bookList.removeIf(book -> book.getId().equals(id));
+    }
+}
