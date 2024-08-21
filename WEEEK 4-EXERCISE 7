@@ -1,0 +1,79 @@
+Introduction to data transfer objects
+package com.example.bookstoreapi.mapper;
+
+import com.example.bookstoreapi.dto.BookDTO;
+import com.example.bookstoreapi.model.Book;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
+@Mapper
+public interface BookMapper {
+    BookMapper INSTANCE = Mappers.getMapper(BookMapper.class);
+
+    BookDTO toBookDTO(Book book);
+
+    Book toBook(BookDTO bookDTO);
+}
+
+package com.example.bookstoreapi.mapper;
+
+import com.example.bookstoreapi.dto.CustomerDTO;
+import com.example.bookstoreapi.model.Customer;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
+@Mapper
+public interface CustomerMapper {
+    CustomerMapper INSTANCE = Mappers.getMapper(CustomerMapper.class);
+
+    CustomerDTO toCustomerDTO(Customer customer);
+
+    Customer toCustomer(CustomerDTO customerDTO);
+}
+<dependency>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct</artifactId>
+    <version>1.5.3.Final</version>
+</dependency>
+<dependency>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct-processor</artifactId>
+    <version>1.5.3.Final</version>
+    <scope>provided</scope>
+</dependency>
+package com.example.bookstoreapi.controller;
+
+import com.example.bookstoreapi.dto.BookDTO;
+import com.example.bookstoreapi.mapper.BookMapper;
+import com.example.bookstoreapi.model.Book;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    private List<Book> bookList = new ArrayList<>();
+
+    // GET all books as DTOs
+    @GetMapping
+    public ResponseEntity<List<BookDTO>> getAllBooks() {
+        List<BookDTO> bookDTOs = bookList.stream()
+                .map(BookMapper.INSTANCE::toBookDTO)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(bookDTOs, HttpStatus.OK);
+    }
+
+    // POST a new book using DTO
+    @PostMapping
+    public ResponseEntity<BookDTO> createBook(@RequestBody BookDTO bookDTO) {
+        Book book = BookMapper.INSTANCE.toBook(bookDTO);
+        bookList.add(book);
+        return new ResponseEntity<>(BookMapper.INSTANCE.toBookDTO(book), HttpStatus.CREATED);
+    }
+}
