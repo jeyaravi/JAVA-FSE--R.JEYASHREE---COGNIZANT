@@ -1,0 +1,397 @@
+Online book store Exercise 9
+
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    private final BookRepository bookRepository;
+    private final BookModelAssembler assembler;
+
+    public BookController(BookRepository bookRepository, BookModelAssembler assembler) {
+        this.bookRepository = bookRepository;
+        this.assembler = assembler;
+    }
+
+    @GetMapping("/{id}")
+    public EntityModel<Book> getBook(@PathVariable Long id) {
+        Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+        return assembler.toModel(book);
+    }
+
+    @GetMapping("/")
+    public CollectionModel<EntityModel<Book>> getAllBooks() {
+        List<EntityModel<Book>> books = bookRepository.findAll().stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+
+        return CollectionModel.of(books, 
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(BookController.class).getAllBooks()).withSelfRel());
+    }
+}
+Exercise 10
+
+{
+    "id": 1,
+    "title": "Spring in Action",
+    "author": "Craig Walls",
+    "_links": {
+        "self": {
+            "href": "http://localhost:8080/books/1"
+        },
+        "books": {
+            "href": "http://localhost:8080/books"
+        }
+    }
+}
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        configurer
+            .favorParameter(false)
+            .ignoreAcceptHeader(false)
+            .defaultContentType(MediaType.APPLICATION_JSON)
+            .mediaType("json", MediaType.APPLICATION_JSON)
+            .mediaType("xml", MediaType.APPLICATION_XML);
+    }
+}
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    private final BookRepository bookRepository;
+
+    public BookController(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    @GetMapping("/{id}")
+    public Book getBook(@PathVariable Long id) {
+        return bookRepository.findById(id)
+            .orElseThrow(() -> new BookNotFoundException(id));
+    }
+
+    @GetMapping("/")
+    public List<Book> getAllBooks() {
+        return bookRepository.findAll();
+    }
+}
+Exercise 11
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    private final BookRepository bookRepository;
+
+    public BookController(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    @GetMapping("/{id}")
+    public Book getBook(@PathVariable Long id) {
+        return bookRepository.findById(id)
+            .orElseThrow(() -> new BookNotFoundException(id));
+    }
+
+    @GetMapping("/")
+    public List<Book> getAllBooks() {
+        return bookRepository.findAll();
+    }
+}
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CustomMetrics {
+
+    private final Counter bookFetchCounter;
+
+    public CustomMetrics(MeterRegistry meterRegistry) {
+        this.bookFetchCounter = meterRegistry.counter("custom.book.fetch.count");
+    }
+
+    public void incrementBookFetchCounter() {
+        bookFetchCounter.increment();
+    }
+}
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    private final BookRepository bookRepository;
+    private final CustomMetrics customMetrics;
+
+    public BookController(BookRepository bookRepository, CustomMetrics customMetrics) {
+        this.bookRepository = bookRepository;
+        this.customMetrics = customMetrics;
+    }
+
+    @GetMapping("/{id}")
+    public Book getBook(@PathVariable Long id) {
+        customMetrics.incrementBookFetchCounter();
+        return bookRepository.findById(id)
+            .orElseThrow(() -> new BookNotFoundException(id));
+    }
+ private final BookRepository bookRepository;
+    private final BookModelAssembler assembler;
+
+    public BookController(BookRepository bookRepository, BookModelAssembler assembler) {
+        this.bookRepository = bookRepository;
+        this.assembler = assembler;
+    }
+
+    @GetMapping("/{id}")
+    public EntityModel<Book> getBook(@PathVariable Long id) {
+        Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+        return assembler.toModel(book);
+    }
+
+    @GetMapping("/")
+    public CollectionModel<EntityModel<Book>> getAllBooks() {
+        List<EntityModel<Book>> books = bookRepository.findAll().stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+
+        return CollectionModel.of(books, 
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(BookController.class).getAllBooks()).withSelfRel());
+    }
+
+Exercise 14
+
+ private final BookRepository bookRepository;
+    private final BookModelAssembler assembler;
+
+    public BookController(BookRepository bookRepository, BookModelAssembler assembler) {
+        this.bookRepository = bookRepository;
+        this.assembler = assembler;
+    }
+
+    @GetMapping("/{id}")
+    public EntityModel<Book> getBook(@PathVariable Long id) {
+        Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+        return assembler.toModel(book);
+    }
+
+    @GetMapping("/")
+    public CollectionModel<EntityModel<Book>> getAllBooks() {
+        List<EntityModel<Book>> books = bookRepository.findAll().stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+
+        return CollectionModel.of(books, 
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(BookController.class).getAllBooks()).withSelfRel());
+    }
+
+    @GetMapping("/")
+    public List<Book> getAllBooks() {
+        return bookRepository.findAll();
+    }
+}
+Exercise 12
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    private final BookRepository bookRepository;
+    private final CustomMetrics customMetrics;
+
+    public BookController(BookRepository bookRepository, CustomMetrics customMetrics) {
+        this.bookRepository = bookRepository;
+        this.customMetrics = customMetrics;
+    }
+
+    @GetMapping("/{id}")
+    public Book getBook(@PathVariable Long id) {
+        customMetrics.incrementBookFetchCounter();
+        return bookRepository.findById(id)
+            .orElseThrow(() -> new BookNotFoundException(id));
+    }
+
+    @GetMapping("/")
+    public List<Book> getAllBooks() {
+        return bookRepository.findAll();
+    }
+}
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt</artifactId>
+    <version>0.9.1</version>
+</dependency>
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+@Component
+public class JwtUtil {
+
+    private String SECRET_KEY = "secret";
+
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+    }
+
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    public String generateToken(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, username);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+            .sign
+
+Exercise 13
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    private final BookRepository bookRepository;
+
+    public BookController(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    @GetMapping("/{id}")
+    public Book getBook(@PathVariable Long id) {
+        return bookRepository.findById(id)
+            .orElseThrow(() -> new BookNotFoundException(id));
+    }
+
+    @GetMapping("/")
+    public List<Book> getAllBooks() {
+        return bookRepository.findAll();
+    }
+}
+ }
+    }
+}
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        configurer
+            .favorParameter(false)
+            .ignoreAcceptHeader(false)
+            .defaultContentType(MediaType.APPLICATION_JSON)
+            .mediaType("json", MediaType.APPLICATION_JSON)
+            .mediaType("xml", MediaType.APPLICATION_XML);
+
+Exercise 15
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@WebMvcTest(BookController.class)
+public class BookControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Mock
+    private BookService bookService;
+
+    @InjectMocks
+    private BookController bookController;
+
+    private Book book;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(bookController).build();
+
+        book = new Book(1L, "Spring in Action", "Craig Walls");
+    }
+
+    @Test
+    public void testGetBook() throws Exception {
+        when(bookService.getBookById(1L)).thenReturn(book);
+
+        mockMvc.perform(get("/books/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1L))
+            .andExpect(jsonPath("$.title").value("Spring in Action"))
+            .andExpect(jsonPath("$.author").value("Craig Walls"));
+    }
+
+    @Test
+    public void testAddBook() throws Exception {
+        when(bookService.addBook(book)).thenReturn(book);
+
+        mockMvc.perform(post("/books/")
+                .contentType(MediaType.APPLICATION
+
+
